@@ -15,32 +15,32 @@ namespace EPPlus.Core.Extensions
     public static class ExcelTableExtensions
     {
         /// <summary>
-        /// Returns table data bounds with regards to header and totals row visibility
+        /// Returns given Excel table data bounds with regards to header and totals row visibility
         /// </summary>
-        /// <param name="table">Extended object</param>
+        /// <param name="excelTable">Extended object</param>
         /// <returns>Address range</returns>
-        public static ExcelAddress GetDataBounds(this ExcelTable table)
+        public static ExcelAddress GetDataBounds(this ExcelTable excelTable)
         {
             return new ExcelAddress(
-                table.Address.Start.Row + (table.ShowHeader ? 1 : 0),
-                table.Address.Start.Column,
-                table.Address.End.Row - (table.ShowTotal ? 1 : 0),
-                table.Address.End.Column
+                excelTable.Address.Start.Row + (excelTable.ShowHeader ? 1 : 0),
+                excelTable.Address.Start.Column,
+                excelTable.Address.End.Row - (excelTable.ShowTotal ? 1 : 0),
+                excelTable.Address.End.Column
             );
         }
 
         /// <summary>
-        /// Validates the excel table against the generating type.
+        /// Validates the Excel table against the generating type.
         /// </summary>
         /// <typeparam name="T">Generating class type</typeparam>
-        /// <param name="table">Extended object</param>
+        /// <param name="excelTable">Extended object</param>
         /// <returns>An enumerable of <see cref="ExcelTableConvertExceptionArgs"/> containing </returns>
-        public static IEnumerable<ExcelTableConvertExceptionArgs> Validate<T>(this ExcelTable table) where T : class, new()
+        public static IEnumerable<ExcelTableConvertExceptionArgs> Validate<T>(this ExcelTable excelTable) where T : class, new()
         {
-            IList mapping = PrepareMappings<T>(table);
+            IList mapping = PrepareMappings<T>(excelTable);
             var result = new LinkedList<ExcelTableConvertExceptionArgs>();
 
-            ExcelAddress bounds = table.GetDataBounds();
+            ExcelAddress bounds = excelTable.GetDataBounds();
 
             var item = (T)Activator.CreateInstance(typeof(T));
 
@@ -49,7 +49,7 @@ namespace EPPlus.Core.Extensions
             {
                 foreach (KeyValuePair<int, PropertyInfo> map in mapping)
                 {
-                    object cell = table.WorkSheet.Cells[row, map.Key + table.Address.Start.Column].Value;
+                    object cell = excelTable.WorkSheet.Cells[row, map.Key + excelTable.Address.Start.Column].Value;
 
                     PropertyInfo property = map.Value;
 
@@ -62,11 +62,11 @@ namespace EPPlus.Core.Extensions
                         result.AddLast(
                             new ExcelTableConvertExceptionArgs
                             {
-                                ColumnName = table.Columns[map.Key].Name,
+                                ColumnName = excelTable.Columns[map.Key].Name,
                                 ExpectedType = property.PropertyType,
                                 PropertyName = property.Name,
                                 CellValue = cell,
-                                CellAddress = new ExcelCellAddress(row, map.Key + table.Address.Start.Column)
+                                CellAddress = new ExcelCellAddress(row, map.Key + excelTable.Address.Start.Column)
                             });
                     }
                 }
@@ -76,21 +76,21 @@ namespace EPPlus.Core.Extensions
         }
 
         /// <summary>
-        /// Generic extension method yielding objects of specified type from table.
+        /// Generic extension method yielding objects of specified type from Excel table.
         /// </summary>
         /// <remarks>Exceptions are not catched. It works on all or nothing basis. 
         /// Only primitives and enums are supported as property.
         /// Currently supports only tables with header.</remarks>
         /// <typeparam name="T">Type to map to. Type should be a class and should have parameterless constructor.</typeparam>
-        /// <param name="table">Table object to fetch</param>
+        /// <param name="excelTable">ExcelTable object to fetch</param>
         /// <param name="skipCastErrors">Determines how the method should handle exceptions when casting cell value to property type. 
         /// If this is true, invalid casts are silently skipped, otherwise any error will cause method to fail with exception.</param>
         /// <returns>An enumerable of the generating type</returns>
-        public static IEnumerable<T> AsEnumerable<T>(this ExcelTable table, bool skipCastErrors = false) where T : class, new()
+        public static IEnumerable<T> AsEnumerable<T>(this ExcelTable excelTable, bool skipCastErrors = false) where T : class, new()
         {
-            IList mapping = PrepareMappings<T>(table);
+            IList mapping = PrepareMappings<T>(excelTable);
 
-            ExcelAddress bounds = table.GetDataBounds();
+            ExcelAddress bounds = excelTable.GetDataBounds();
 
             // Parse table
             for (int row = bounds.Start.Row; row <= bounds.End.Row; row++)
@@ -99,7 +99,7 @@ namespace EPPlus.Core.Extensions
 
                 foreach (KeyValuePair<int, PropertyInfo> map in mapping)
                 {
-                    object cell = table.WorkSheet.Cells[row, map.Key + table.Address.Start.Column].Value;
+                    object cell = excelTable.WorkSheet.Cells[row, map.Key + excelTable.Address.Start.Column].Value;
 
                     PropertyInfo property = map.Value;
 
@@ -115,11 +115,11 @@ namespace EPPlus.Core.Extensions
                                 ex,
                                 new ExcelTableConvertExceptionArgs
                                 {
-                                    ColumnName = table.Columns[map.Key].Name,
+                                    ColumnName = excelTable.Columns[map.Key].Name,
                                     ExpectedType = property.PropertyType,
                                     PropertyName = property.Name,
                                     CellValue = cell,
-                                    CellAddress = new ExcelCellAddress(row, map.Key + table.Address.Start.Column)
+                                    CellAddress = new ExcelCellAddress(row, map.Key + excelTable.Address.Start.Column)
                                 }
                             );
                     }
@@ -130,28 +130,28 @@ namespace EPPlus.Core.Extensions
         }
 
         /// <summary>
-        /// Returns objects of specified type from table as list.
+        /// Returns objects of specified type from Excel table as list.
         /// </summary>
         /// <remarks>Exceptions are not catched. It works on all or nothing basis. 
         /// Only primitives and enums are supported as property.
         /// Currently supports only tables with header.</remarks>
         /// <typeparam name="T">Type to map to. Type should be a class and should have parameterless constructor.</typeparam>
-        /// <param name="table">Table object to fetch</param>
+        /// <param name="excelTable">ExcelTable object to fetch</param>
         /// <param name="skipCastErrors">Determines how the method should handle exceptions when casting cell value to property type. 
-        /// If this is true, invlaid casts are silently skipped, otherwise any error will cause method to fail with exception.</param>
+        /// If this is true, invalid casts are silently skipped, otherwise any error will cause method to fail with exception.</param>
         /// <returns>An enumerable of the generating type</returns>
-        public static IList<T> ToList<T>(this ExcelTable table, bool skipCastErrors = false) where T : class, new()
+        public static IList<T> ToList<T>(this ExcelTable excelTable, bool skipCastErrors = false) where T : class, new()
         {
-            return AsEnumerable<T>(table, skipCastErrors).ToList();
+            return AsEnumerable<T>(excelTable, skipCastErrors).ToList();
         }
 
         /// <summary>
         /// Prepares mapping using the type and the attributes decorating its properties
         /// </summary>
         /// <typeparam name="T">Type to parse</typeparam>
-        /// <param name="table">Table to get columns from</param>
+        /// <param name="excelTable">ExcelTable to get columns from</param>
         /// <returns>A list of mappings from column index to property</returns>
-        private static IList PrepareMappings<T>(ExcelTable table)
+        private static IList PrepareMappings<T>(ExcelTable excelTable)
         {
             IList mapping = new List<KeyValuePair<int, PropertyInfo>>();
 
@@ -168,19 +168,19 @@ namespace EPPlus.Core.Extensions
                     // Neither index, nor column name is specified, use property name
                     if (mappingAttribute.ColumnIndex == 0 && string.IsNullOrWhiteSpace(mappingAttribute.ColumnName))
                     {
-                        col = table.Columns[property.Name].Position;
+                        col = excelTable.Columns[property.Name].Position;
                     }
 
                     // Column index was specified
                     if (mappingAttribute.ColumnIndex > 0)
                     {
-                        col = table.Columns[mappingAttribute.ColumnIndex - 1].Position;
+                        col = excelTable.Columns[mappingAttribute.ColumnIndex - 1].Position;
                     }
 
                     // Column name was specified
                     if (!string.IsNullOrWhiteSpace(mappingAttribute.ColumnName))
                     {
-                        col = table.Columns[mappingAttribute.ColumnName].Position;
+                        col = excelTable.Columns[mappingAttribute.ColumnName].Position;
                     }
 
                     if (col == -1)

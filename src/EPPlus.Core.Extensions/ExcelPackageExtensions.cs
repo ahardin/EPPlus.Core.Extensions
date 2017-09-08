@@ -13,7 +13,7 @@ namespace EPPlus.Core.Extensions
     public static class ExcelPackageExtensions
     {
         /// <summary>
-        /// Returns all table names in the opened worksheet
+        /// Returns all Excel tables in the opened worksheet
         /// </summary>
         /// <remarks>Excel is ensuring the uniqueness of table names</remarks>
         /// <param name="excelPackage">The ExcelPackage object</param>
@@ -41,20 +41,20 @@ namespace EPPlus.Core.Extensions
         /// <summary>
         /// Checks that given table name is in the ExcelPackage or not
         /// </summary>
-        /// <param name="excel">The ExcelPackage object</param>
+        /// <param name="excelPackage">The ExcelPackage object</param>
         /// <param name="name">Name of the table</param>
         /// <returns>Result of search as bool</returns>
-        public static bool HasTable(this ExcelPackage excel, string name)
+        public static bool HasTable(this ExcelPackage excelPackage, string name)
         {
-            return excel.GetTables().Any(t => t.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
+            return excelPackage.GetTables().Any(t => t.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
-        /// Extracts a DataSet from the ExcelPackage.
+        /// Extracts from the ExcelPackage and returns a DataSet.
         /// </summary>
         /// <param name="excelPackage">The ExcelPackage.</param>
         /// <param name="hasHeaderRow">Indicates whether worksheet has a header row or not.</param>
-        /// <returns></returns>
+        /// <returns>DataSet object</returns>
         public static DataSet ToDataSet(this ExcelPackage excelPackage, bool hasHeaderRow = true)
         {
             var dataSet = new DataSet();

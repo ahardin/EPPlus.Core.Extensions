@@ -10,11 +10,11 @@ namespace EPPlus.Core.Extensions
     public static class ExcelWorksheetExtensions
     {
         /// <summary>
-        /// Returns worksheet data bounds
+        ///  Returns the data bounds of given worksheet 
         /// </summary>
         /// <param name="worksheet"></param>
         /// <param name="hasHeaderRow"></param>
-        /// <returns></returns>
+        /// <returns>Range address</returns>
         public static ExcelAddress GetDataBounds(this ExcelWorksheet worksheet, bool hasHeaderRow = true)
         {
             return new ExcelAddress(
@@ -26,11 +26,11 @@ namespace EPPlus.Core.Extensions
         }
 
         /// <summary>
-        /// Returns worksheet data cell ranges
+        /// Returns the data cell ranges of given worksheet
         /// </summary>
         /// <param name="worksheet"></param>
         /// <param name="hasHeaderRow"></param>
-        /// <returns></returns>
+        /// <returns>A range of cells</returns>
         public static ExcelRange GetExcelRange(this ExcelWorksheet worksheet, bool hasHeaderRow = true)
         {
             return worksheet.Cells[worksheet.GetDataBounds(hasHeaderRow).Address];
@@ -41,7 +41,7 @@ namespace EPPlus.Core.Extensions
         /// </summary>
         /// <param name="worksheet"></param>
         /// <param name="hasHeaderRow"></param>
-        /// <returns></returns>
+        /// <returns>An ExcelTable object</returns>
         public static ExcelTable AsExcelTable(this ExcelWorksheet worksheet, bool hasHeaderRow = true)
         {
             if (worksheet.Tables.Any())
@@ -66,7 +66,7 @@ namespace EPPlus.Core.Extensions
         /// Indicates whether ExcelWorksheet contains any formula or not
         /// </summary>
         /// <param name="worksheet"></param>
-        /// <returns></returns>
+        /// <returns>true or false</returns>
         public static bool HasAnyFormula(this ExcelWorksheet worksheet)
         {
             return worksheet.Cells.Any(x => !string.IsNullOrEmpty(x.Formula));
@@ -77,7 +77,7 @@ namespace EPPlus.Core.Extensions
         /// </summary>
         /// <param name="worksheet">The ExcelWorksheet.</param>
         /// <param name="hasHeaderRow">Indicates whether worksheet has a header row or not.</param>
-        /// <returns></returns>
+        /// <returns>A DataTable object</returns>
         public static DataTable ToDataTable(this ExcelWorksheet worksheet, bool hasHeaderRow = true)
         {
             ExcelAddress dataBounds = worksheet.GetDataBounds(hasHeaderRow);
@@ -104,11 +104,12 @@ namespace EPPlus.Core.Extensions
         /// <summary>
         /// Generic extension method yielding objects of specified type from excel worksheet.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="worksheet"></param>
-        /// <param name="hasHeaderRow"></param>
-        /// <param name="skipCastErrors"></param>
-        /// <returns></returns>
+        /// <typeparam name="T">Type to map to. Type should be a class and should have parameterless constructor.</typeparam>
+        /// <param name="worksheet">The ExcelWorksheet.</param>
+        /// <param name="hasHeaderRow">Indicates whether worksheet has a header row or not.</param>
+        /// <param name="skipCastErrors">Determines how the method should handle exceptions when casting cell value to property type. 
+        /// If this is true, invalid casts are silently skipped, otherwise any error will cause method to fail with exception.</param>
+        /// <returns>An enumerator from given worksheet</returns>
         public static IEnumerable<T> AsEnumerable<T>(this ExcelWorksheet worksheet, bool skipCastErrors = false, bool hasHeaderRow = true) where T : class, new()
         {
             return worksheet.AsExcelTable(hasHeaderRow).AsEnumerable<T>(skipCastErrors);
@@ -117,11 +118,12 @@ namespace EPPlus.Core.Extensions
         /// <summary>
         /// Returns objects of specified type from excel worksheet as list.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="worksheet"></param>
-        /// <param name="hasHeaderRow"></param>
-        /// <param name="skipCastErrors"></param>
-        /// <returns></returns>
+        /// <typeparam name="T">Type to map to. Type should be a class and should have parameterless constructor.</typeparam>
+        /// <param name="worksheet">The ExcelWorksheet.</param>
+        /// <param name="hasHeaderRow">Indicates whether worksheet has a header row or not.</param>
+        /// <param name="skipCastErrors">Determines how the method should handle exceptions when casting cell value to property type. 
+        /// If this is true, invalid casts are silently skipped, otherwise any error will cause method to fail with exception.</param>
+        /// <returns>A list of objects from given worksheet</returns>
         public static IList<T> ToList<T>(this ExcelWorksheet worksheet, bool skipCastErrors = false, bool hasHeaderRow = true) where T : class, new()
         {
             return worksheet.AsEnumerable<T>(skipCastErrors, hasHeaderRow).ToList();

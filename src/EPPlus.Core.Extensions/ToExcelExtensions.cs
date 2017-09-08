@@ -8,11 +8,11 @@ namespace EPPlus.Core.Extensions
     public static class ToExcelExtensions
     {
         /// <summary>
-        /// Generates an Excel worksheet from a list
+        /// Generates a worksheet wrapper object from given list
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="rows"></param>
-        /// <param name="name"></param>
+        /// <typeparam name="T">Type of object</typeparam>
+        /// <param name="rows">List of objects</param>
+        /// <param name="name">Name of worksheet</param>
         /// <param name="configureColumn"></param>
         /// <param name="configureHeader"></param>
         /// <param name="configureHeaderRow"></param>
@@ -124,17 +124,35 @@ namespace EPPlus.Core.Extensions
             return rows.ToWorksheet(typeof(T).Name).ToPackage();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="lastWorksheet"></param>
+        /// <returns></returns>
         public static ExcelPackage ToPackage<T>(this WorksheetWrapper<T> lastWorksheet)
         {
             lastWorksheet.AppendWorksheet();
             return lastWorksheet.Package;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="rows"></param>
+        /// <returns>A byte array to save the given list as Excel file</returns>
         public static byte[] ToXlsx<T>(this IList<T> rows)
         {
             return rows.ToWorksheet(typeof(T).Name).ToXlsx();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="lastWorksheet"></param>
+        /// <returns></returns>
         public static byte[] ToXlsx<T>(this WorksheetWrapper<T> lastWorksheet)
         {
             using (var stream = new MemoryStream())
